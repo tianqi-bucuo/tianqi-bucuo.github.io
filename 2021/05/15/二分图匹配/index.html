@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content=#58b77a>
+  <title>二分图匹配 | tianqibucuo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <script id="hexo-configurations">
+  var CONFIG = {
+    root: '/',
+    theme: 'lx',
+    version: '0.3.9',
+    localsearch:{
+      "enable": true,
+      "trigger": "auto",
+      "top_n_per_article": 1,
+      "unescape": false,
+      "preload": false
+      },
+    path: 'search.xml'
+  };
+</script>
+
+  <link rel="shortcut icon" href="/myFavicon.ico">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/theme-lx@0.3.9/source/css/main.min.css">
+  <style type="text/css">
+    pre,
+    code {
+      font-family: 'Fira Code', monospace;
+    }
+    html {
+      font-family: sans-serif;
+    }
+    body {
+      font-family: sans-serif;
+    }
+    h1, h2, h3, h4, h5, figure {
+      font-family: sans-serif;
+    }
+    .menu-container{
+      font-family: sans-serif;
+    }
+  </style>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/theme-lx@0.3.9/source/js/jquery.jside.menu.js"></script>
+	<script>
+	$(document).ready(function(){
+	$(".menu-container").jSideMenu({
+	    jSidePosition: "position-right",
+	    jSideSticky: true,
+	    jSideSkin: "between-clouds",
+	     });
+	}); 
+	</script>
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Fira Code:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+<div class="single">
+<a href="javascript:;" class="popup-trigger"><i class="menu-item-icon fa fa-search fa-fw"></i></a>
+<div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Search..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+<div id="page">
+<div id="lx-aside" style="background-image: url(/images/cover.jpg)" data-stellar-background-ratio="0.5">
+  <div class="overlay">
+  <div class="page-title">
+    <div class="avatar"><a href="/"><img src="/images/avatar.png"></a></div>
+    <span>2021-05-15</span>
+    <h2>二分图匹配</h2>
+    <div class="tags"><i class="fa fa-tag"></i><a class="tag-none-link" href="/tags/%E5%9B%BE%E7%9A%84%E5%8C%B9%E9%85%8D/" rel="tag">图的匹配</a></div>
+    </div>
+</div>
+</div>
+
+<div id="lx-main-content">
+  <div class="lx-post">
+    <div class="lx-entry padding">
+      <div>
+        <p>有两种情况的二分图匹配，一种是无权二分图，称为<strong>二分图最大匹配</strong>；一种是带权二分图，称为<strong>二分图最大权匹配</strong>。</p>
+<span id="more"></span>
+
+<h2 id="二分图最大匹配"><a href="#二分图最大匹配" class="headerlink" title="二分图最大匹配"></a>二分图最大匹配</h2><p><strong>题目描述</strong></p>
+<p>给定一个二分图，其左部点的个数为 n，右部点的个数为 m，边数为 e，求其最大匹配的边数。</p>
+<p>左部点从 1 至 n 编号，右部点从 1 至 m 编号。</p>
+<p><strong>输入格式</strong></p>
+<p>输入的第一行是三个整数，分别代表 n，m 和 e。</p>
+<p>接下来 e 行，每行两个整数 u,v，表示存在一条连接左部点 u 和右部点 v 的边。</p>
+<p><strong>输出格式</strong></p>
+<p>输出一行一个整数，代表二分图最大匹配的边数。</p>
+<hr>
+<h3 id="1-匈牙利算法"><a href="#1-匈牙利算法" class="headerlink" title="1.匈牙利算法"></a>1.匈牙利算法</h3><p>解决这个问题比较常用的方法是匈牙利算法。</p>
+<p>在匈牙利算法里有一个<strong>增广路</strong>的概念：从一个未匹配点出发，依次经过非匹配边、匹配边、非匹配边、匹配边……所得到的路径称为交替路。如果交替路的终点是一个未匹配点，则称这条交替路为一条增广路。</p>
+<p>这个增广路和网络流里的增广路稍微有些区别。</p>
+<p>匈牙利算法具体流程如下：</p>
+<ol>
+<li>初始状态所有边都是非匹配边</li>
+<li>一次从一个左部 u 开始，尝试 dfs 寻找增广路，记 u 出发到达的右部节点为 v ，记 lft[i] 为匹配右部节点 i 的左部节点。<ul>
+<li>若 u 能到达的右部节点 v 为非匹配点，则找到一条长度为 1 的增广路，lft[v] = u</li>
+<li>若 v 为匹配点，则递归地从 lft[v] 出发寻找增广路，回溯时记 lft[v] = u </li>
+<li>在同一次增广中，若 v 曾经被到达过，则跳过(非简单路)</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxn = <span class="number">1005</span>;</span><br><span class="line"><span class="keyword">int</span> n, m, e;</span><br><span class="line"><span class="keyword">bool</span> vis[maxn];</span><br><span class="line"><span class="keyword">int</span> lft[maxn];</span><br><span class="line">vector&lt;<span class="keyword">int</span>&gt; edges[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span> u)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> v : edges[u]) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!vis[v]) &#123;</span><br><span class="line">            vis[v] = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">if</span> (!lft[v] || <span class="built_in">dfs</span>(lft[v])) &#123;</span><br><span class="line">                lft[v] = u;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m &gt;&gt;e;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> u, v; e; --e) &#123;</span><br><span class="line">        cin &gt;&gt; u &gt;&gt; v;            </span><br><span class="line">        edges[u].<span class="built_in">push_back</span>(v);            </span><br><span class="line">    &#125;        </span><br><span class="line">		</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(vis, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(vis));</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">dfs</span>(i))</span><br><span class="line">            ++res;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>时间复杂度$O(nm)$，n 为节点数，m 为边数。</p>
+<h3 id="2-转为网络最大流模型"><a href="#2-转为网络最大流模型" class="headerlink" title="2. 转为网络最大流模型"></a>2. 转为网络最大流模型</h3><p>二分图最大匹配可以转换成网络流模型。</p>
+<p>将左边所有点接上源点，右边所有点接上汇点，容量皆为 1 。原来的每条边从左往右连边，容量也皆为 1 ，最大流即最大匹配。</p>
+<p>如果使用 Dinic 算法求该网络的最大流，可在$O(\sqrt{n}m)$求出。</p>
+<h2 id="二分图最大权匹配"><a href="#二分图最大权匹配" class="headerlink" title="二分图最大权匹配"></a>二分图最大权匹配</h2><p><strong>题目描述</strong></p>
+<p>给定一张二分图，左右部均有 n 个点，共有 m 条带权边，且保证有完美匹配。<br>求一种完美匹配的方案，使得最终匹配边的边权之和最大。</p>
+<p><strong>输入格式</strong></p>
+<p>第一行两个整数 n, m，第 2 ∼ m+1 行，每行三个整数 u， v，w 描述了图中的一条边，从左部的 u 到右部的 v ，边权为 w 。</p>
+<p><strong>输出格式</strong></p>
+<p>第一行一个整数表示答案。<br>第二行共 nn 个整数 a1，a2，a3…an ，其中 ai 表示完美匹配下与右部第 i 个点相匹配的左部点的编号。如果存在多种方案，请输出任意一种。</p>
+<hr>
+<h3 id="1-Kuhn-Munkres算法"><a href="#1-Kuhn-Munkres算法" class="headerlink" title="1. Kuhn-Munkres算法"></a>1. Kuhn-Munkres算法</h3><p>无权二分图匹配里用了匈牙利算法，KM算法里也有匈牙利算法找增广路的思想。</p>
+<p>KM里有一个比较(很)难理解的概念：<strong>顶标</strong><br>可行顶标是一个节点函数 l ，使得对于任意弧(u,v)，有 l(u)+l(v)≥w(u,v)。<br>(定义看完一脸懵 ~ ~ ~)</p>
+<p>KM也像匈牙利算法一样，不断地向图中添加匹配边，最终达到完美匹配。顶标的作用是当添加匹配边冲突时，用于帮助做出正确的贪心选择的。<br>例如，左部顶点 u1、u2 按照算法流程都连向了右部节点 v ，顶标就是用来计算 u1、u2 哪个更应该与 v 相连，然后让另一个去连别的右部节点。</p>
+<p>KM算法流程：</p>
+<pre><code>1. 贪心地初始化可行顶标的值
+2. 用匈牙利算法寻找匹配
+3. 如果在找匹配的过程中出现了冲突，修改顶标的值
+4. 重复2、3步
+</code></pre>
+<p>第一步初始化顶标，将左部节点的顶标值初始化为它所连的边中的最大权值，将右部节点的顶标值全部初始化为 0 。<br>这步就是将左部节点要连的边先假设为可能的最大值，后面如果冲突，再修改顶标让它匹配其他的边。</p>
+<p>第二步和无权二分图类似，从一个左部节点向右部节点连边，如果 l(u)+l(v)=w(u,v)，就是匹配到了正确的右部节点。</p>
+<p>第三步如果要匹配的右部节点已经被匹配，就要修改顶标值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxn = <span class="number">1000</span>, maxm = <span class="number">500000</span>, inf = <span class="number">0x7f7f7f7f</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> W[maxn][maxn], n, m;    <span class="comment">// 边的权值</span></span><br><span class="line"><span class="keyword">int</span> lx[maxn], ly[maxn];     <span class="comment">// 节点的顶标</span></span><br><span class="line"><span class="keyword">int</span> lft[maxn];              <span class="comment">// 右部节点匹配的左部节点</span></span><br><span class="line"><span class="keyword">bool</span> S[maxn], T[maxn];      <span class="comment">// 记录本次匹配中节点是否被访问</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">match</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">    S[i] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) &#123;</span><br><span class="line">        <span class="keyword">if</span> (lx[i] + ly[j] == W[i][j] &amp;&amp; !T[j]) &#123;</span><br><span class="line">            T[j] = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">if</span> (!lft[j] || <span class="built_in">match</span>(lft[j])) &#123;</span><br><span class="line">                lft[j] = i;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改顶标</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">1</span> &lt;&lt; <span class="number">30</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        <span class="keyword">if</span>(S[i]) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!T[j]) &#123;</span><br><span class="line">                    a = <span class="built_in">min</span>(a, lx[i] + ly[j] - W[i][j]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (S[i])   lx[i] -= a;</span><br><span class="line">        <span class="keyword">if</span> (T[i])   ly[i] += a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">KM</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        lft[i] = lx[i] = ly[i] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) </span><br><span class="line">            lx[i] = <span class="built_in">max</span>(lx[i], W[i][j]);</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) S[j] = T[j] = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">match</span>(i))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">                <span class="built_in">update</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> u, v, w; m; m--) &#123;</span><br><span class="line">        cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;</span><br><span class="line">        W[u][v] = w;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">KM</span>();</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) </span><br><span class="line">        res += W[lft[i]][i];</span><br><span class="line">    cout &lt;&lt; res &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) </span><br><span class="line">        cout &lt;&lt; lft[i] &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>按照下面的二分图走一遍算法流程</p>
+<ol>
+<li><p>初始化顶标为最大权值<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/1.png"></p>
+</li>
+<li><p>u1 成功匹配 v1<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/2.png"></p>
+</li>
+<li><p>u2 也想匹配 v1<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/3.png"><br>这时候就发生了冲突，那咋办————修改顶标。<br>修改顶标的目的是判断 u1、u2 哪个更应该与 v1 相连。<br>分别遍历 u1、u2 与除 v1 外其他右部节点相连所能得到的边权，用 w(u1,v1)和 w(u2,v1) 分别减去这些边权，取最小值，就是应该修改的顶标值。<br>其实就是看一看 u1、u2 哪个不与 v1 相连损失的边权最小，损失较小的那个让它去连别的右部节点(贪心)。</p>
+</li>
+<li><p>修改顶标后 u2 与 v2 相连<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/4.png"></p>
+</li>
+<li><p>v1 顶标修改后 u3 无法与任何节点相连，就得修改顶标<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/5.png"></p>
+</li>
+<li><p>修改后的 u3 想连 v1 ，又冲突了，那就再修改顶标<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/6.png"></p>
+</li>
+<li><p>修改后所有节点都完成匹配<br><img src="/2021/05/15/%E4%BA%8C%E5%88%86%E5%9B%BE%E5%8C%B9%E9%85%8D/7.png"><br>都满足 l(u)+l(v)=w(u,v)</p>
+</li>
+</ol>
+<p>这个版本的KM算法时间复杂度为$O(n^4)$，另外有可以优化到$O(n^3)$的版本。</p>
+<h3 id="2-转化为费用流模型"><a href="#2-转化为费用流模型" class="headerlink" title="2. 转化为费用流模型"></a>2. 转化为费用流模型</h3><p>在图中新增一个源点和一个汇点。</p>
+<p>从源点向二分图的每个左部点连一条流量为 1 ，费用为 0 的边，从二分图的每个右部点向汇点连一条流量为 1 ，费用为 0 的边。</p>
+<p>接下来对于二分图中每一条连接左部点 u 和右部点 v ，边权为 w 的边，则连一条从 u 到 v ，流量为 1 ，费用为 w 的边。</p>
+<p>求这个网络的 <strong>最大费用最大流</strong> 即可得到答案。</p>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="lx-navigation">
+	<div class="lx-cover prev lx-cover-sm" style="background-image: url(/images/footer-l.jpeg)">
+		<div class="overlay"></div>
+		<a class="copy" href="#">
+			<div class="display-t">
+				<div class="display-tc">
+					<div>
+						<span>Next</span>
+						<h3>没有更新的文章</h3>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+        <div class="lx-cover next lx-cover-sm" style="background-image: url(/images/footer-r.jpeg)">
+		<div class="overlay"></div>
+		<a class="copy" href="/2021/05/12/%E6%9C%80%E5%A4%A7%E6%B5%81/">
+			<div class="display-t">
+				<div class="display-tc">
+					<div>
+						<span>Prev</span>
+						<h3>网络流</h3>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+</div>
+
+</div>
+
+<footer>
+  <div>
+  Copyright &copy; 2019.<a href="/">tianqibucuo</a><br>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme <a href="https://lx.js.org" target="_blank">Lx</a><br>
+  </div>
+</footer>
+
+</div>
+
+<button class="hamburger hamburger--arrow-r" type="button">
+    <div class="hamburger-box">
+      <div class="hamburger-inner"></div>
+    </div>
+</button> 
+<div class="menu visibility">
+  <div class="menu-head">
+    <span class="layer">
+      <div class="col">
+        <div class="row for-pic">
+          <div class="profile-pic">
+            <a href="/"><img src="/images/avatar.png" alt=""/></a>
+          </div>
+        </div>
+        <div class="row for-name">
+          <p></p>
+          <span class="tagline"></span>
+        </div>
+      </div>
+    </span>
+  </div>
+  <nav class="menu-container">
+  <ul class="menu-items">
+    <li><a href="/"><i class="fa fa-home fa-fw"></i>首页</a></li>
+    <li><a href="/archives/"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+    <li class="has-sub"><span class="dropdown-heading">
+      <i class="fa fa-th-list fa-fw"></i>分类</span>
+        <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9B%BE%E8%AE%BA/">图论</a></li></ul>
+    </li>
+    
+    
+  </ul>
+  </nav>
+</div>
+
+<div class="gototop js-top">
+  <a href="#" class="js-gotop"><i class="fa fa-arrow-up"></i></a>
+</div>
+<script src="//cdn.jsdelivr.net/npm/theme-lx@0.3.9/source/js/jquery.easing.min.js"></script>
+<script>
+(function () {
+	"use strict";
+	var goToTop = function() {
+		$(".js-gotop").on("click", function(event){
+			event.preventDefault();
+			$("html, body").animate({
+				scrollTop: $("html").offset().top
+			}, 500, "easeInOutExpo");
+			return false;
+		});
+		$(window).scroll(function(){
+			var $win = $(window);
+			if ($win.scrollTop() > 200) {
+				$(".js-top").addClass("active");
+			} else {
+				$(".js-top").removeClass("active");
+			}
+		});
+	};
+	$(function(){
+		goToTop();
+	});
+}());
+</script>
+<script src="//cdn.jsdelivr.net/npm/theme-lx@0.3.9/source/js/local.search.js"></script>
+
+</body>
+</html>
