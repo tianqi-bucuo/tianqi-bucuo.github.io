@@ -113,7 +113,7 @@
 <p>在匈牙利算法里有一个<strong>增广路</strong>的概念：从一个未匹配点出发，依次经过非匹配边、匹配边、非匹配边、匹配边……所得到的路径称为交替路。如果交替路的终点是一个未匹配点，则称这条交替路为一条增广路。</p>
 <p>这个增广路和网络流里的增广路稍微有些区别。</p>
 <p>匈牙利算法具体流程如下：</p>
-<ol>
+<ul>
 <li>初始状态所有边都是非匹配边</li>
 <li>一次从一个左部 u 开始，尝试 dfs 寻找增广路，记 u 出发到达的右部节点为 v ，记 lft[i] 为匹配右部节点 i 的左部节点。<ul>
 <li>若 u 能到达的右部节点 v 为非匹配点，则找到一条长度为 1 的增广路，lft[v] = u</li>
@@ -121,7 +121,7 @@
 <li>在同一次增广中，若 v 曾经被到达过，则跳过(非简单路)</li>
 </ul>
 </li>
-</ol>
+</ul>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> maxn = <span class="number">1005</span>;</span><br><span class="line"><span class="keyword">int</span> n, m, e;</span><br><span class="line"><span class="keyword">bool</span> vis[maxn];</span><br><span class="line"><span class="keyword">int</span> lft[maxn];</span><br><span class="line">vector&lt;<span class="keyword">int</span>&gt; edges[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span> u)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> v : edges[u]) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!vis[v]) &#123;</span><br><span class="line">            vis[v] = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">if</span> (!lft[v] || <span class="built_in">dfs</span>(lft[v])) &#123;</span><br><span class="line">                lft[v] = u;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    cin &gt;&gt; n &gt;&gt; m &gt;&gt;e;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> u, v; e; --e) &#123;</span><br><span class="line">        cin &gt;&gt; u &gt;&gt; v;            </span><br><span class="line">        edges[u].<span class="built_in">push_back</span>(v);            </span><br><span class="line">    &#125;        </span><br><span class="line">		</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(vis, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(vis));</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">dfs</span>(i))</span><br><span class="line">            ++res;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>时间复杂度$O(nm)$，n 为节点数，m 为边数。</p>
@@ -139,11 +139,7 @@
 <p>KM里有一个比较(很)难理解的概念：<strong>顶标</strong><br>可行顶标是一个节点函数 l ，使得对于任意弧(u,v)，有 l(u)+l(v)≥w(u,v)。<br>(定义看完一脸懵 ~ ~ ~)</p>
 <p>KM也像匈牙利算法一样，不断地向图中添加匹配边，最终达到完美匹配。顶标的作用是当添加匹配边冲突时，用于帮助做出正确的贪心选择的。<br>例如，左部顶点 u1、u2 按照算法流程都连向了右部节点 v ，顶标就是用来计算 u1、u2 哪个更应该与 v 相连，然后让另一个去连别的右部节点。</p>
 <p>KM算法流程：</p>
-<pre><code>1. 贪心地初始化可行顶标的值
-2. 用匈牙利算法寻找匹配
-3. 如果在找匹配的过程中出现了冲突，修改顶标的值
-4. 重复2、3步
-</code></pre>
+<p>1.贪心地初始化可行顶标的值<br>2.用匈牙利算法寻找匹配<br>3.如果在找匹配的过程中出现了冲突，修改顶标的值<br>4.重复2、3步</p>
 <p>第一步初始化顶标，将左部节点的顶标值初始化为它所连的边中的最大权值，将右部节点的顶标值全部初始化为 0 。<br>这步就是将左部节点要连的边先假设为可能的最大值，后面如果冲突，再修改顶标让它匹配其他的边。</p>
 <p>第二步和无权二分图类似，从一个左部节点向右部节点连边，如果 l(u)+l(v)=w(u,v)，就是匹配到了正确的右部节点。</p>
 <p>第三步如果要匹配的右部节点已经被匹配，就要修改顶标值。</p>
